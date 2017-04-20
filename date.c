@@ -43,10 +43,13 @@ static time_t gm_time_t(timestamp_t time, int tz)
 {
 	int minutes;
 
+	if (date_overflows(time))
+		die("Timestamp too large for this system: %"PRItime, time);
+
 	minutes = tz < 0 ? -tz : tz;
 	minutes = (minutes / 100)*60 + (minutes % 100);
 	minutes = tz < 0 ? -minutes : minutes;
-	return time + minutes * 60;
+	return (time_t)time + minutes * 60;
 }
 
 /*
@@ -56,7 +59,12 @@ static time_t gm_time_t(timestamp_t time, int tz)
  */
 static struct tm *time_to_tm(timestamp_t time, int tz)
 {
-	time_t t = gm_time_t(time, tz);
+	time_t t;
+
+	if (date_overflows(time))
+		die("Timestamp too large for this system: %"PRItime, time);
+
+	t = gm_time_t((time_t)time, tz);
 	return gmtime(&t);
 }
 
@@ -70,7 +78,10 @@ static int local_tzoffset(timestamp_t time)
 	struct tm tm;
 	int offset, eastwest;
 
-	t = time;
+	if (date_overflows(time))
+		die("Timestamp too large for this system: %"PRItime, time);
+
+	t = (time_t)time;
 	localtime_r(&t, &tm);
 	t_local = tm_to_time_t(&tm);
 
