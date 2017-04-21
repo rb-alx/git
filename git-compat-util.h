@@ -1094,6 +1094,9 @@ int access_or_die(const char *path, int mode, unsigned flag);
 /* Warn on an inaccessible file that ought to be accessible */
 void warn_on_inaccessible(const char *path);
 
+/* Call the above after fopen/open fails for optional input */
+void warn_failure_to_read_open_optional_path(const char *);
+
 #ifdef GMTIME_UNRELIABLE_ERRORS
 struct tm *git_gmtime(const time_t *);
 struct tm *git_gmtime_r(const time_t *, struct tm *);
